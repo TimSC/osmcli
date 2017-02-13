@@ -5,8 +5,6 @@ if __name__=="__main__":
 	osmCli.SetUserPass(osmconfig.osmUsername, osmconfig.osmPassword)
 
 	osmCli.CreateChangeset()
-	cid = osmCli.GetCurrentChangeset()
-	print cid
 
 	lat = 51.25022331526812
 	lon = -0.6042092878597837
@@ -18,7 +16,26 @@ if __name__=="__main__":
 	"    <nd ref='-2008' />\n"+\
 	"  </way>\n" +\
 	"  </create>\n"
-	print osmCli.Upload(createXml = createXml)
+	
+	diffNodes, diffWays, diffRelations = osmCli.Upload(createXml = createXml)
+	firstNodeInfo = diffNodes[-289]
+	firstWayInfo = diffWays[-2010]
 
 	osmCli.CloseChangeset()
 	
+	osmCli.CreateChangeset()
+
+	modifyXml = "<modify>\n"+\
+	"  <node id='{}' version='{}' lat='{}' lon='{}' />\n".format(firstNodeInfo[0],firstNodeInfo[1],lat+0.1,lon)+\
+	"</modify>\n"
+
+	diffNodes, diffWays, diffRelations = osmCli.Upload(modifyXml = modifyXml)
+
+	deleteXml = "<delete>\n"+\
+	"  <way id='{}' version='{}'/>\n".format(firstWayInfo[0], firstWayInfo[1])+\
+	"</delete>\n"
+
+	diffNodes, diffWays, diffRelations = osmCli.Upload(deleteXml = deleteXml)
+
+	osmCli.CloseChangeset()
+

@@ -80,11 +80,20 @@ class OsmCli(object):
 		xmlroot = ET.fromstring(response[0])
 		for nd in xmlroot:
 			if nd.tag == "node":
-				diffNodes[int(nd.attrib["old_id"])] = map(int, (nd.attrib["new_id"], nd.attrib["new_version"]))
+				if "new_id" in nd.attrib:
+					diffNodes[int(nd.attrib["old_id"])] = map(int, (nd.attrib["new_id"], nd.attrib["new_version"]))
+				else:
+					diffNodes[int(nd.attrib["old_id"])] = None
 			elif nd.tag == "way":
-				diffWays[int(nd.attrib["old_id"])] = map(int, (nd.attrib["new_id"], nd.attrib["new_version"]))
+				if "new_id" in nd.attrib:
+					diffWays[int(nd.attrib["old_id"])] = map(int, (nd.attrib["new_id"], nd.attrib["new_version"]))
+				else:
+					diffWays[int(nd.attrib["old_id"])] = None
 			elif nd.tag == "relation":
-				diffRelations[int(nd.attrib["old_id"])] = map(int, (nd.attrib["new_id"], nd.attrib["new_version"]))
+				if "new_id" in nd.attrib:
+					diffRelations[int(nd.attrib["old_id"])] = map(int, (nd.attrib["new_id"], nd.attrib["new_version"]))
+				else:
+					diffRelations[int(nd.attrib["old_id"])] = None
 
 		return diffNodes, diffWays, diffRelations
 
