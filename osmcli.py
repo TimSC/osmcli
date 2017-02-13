@@ -48,23 +48,37 @@ class OsmCli(object):
 		if self.openChangeSet is None:
 			raise RuntimeError("Changeset is not open")
 
-		create = "<?xml version='1.0' encoding='UTF-8'?>\n" +\
-			"<osmChange version='0.6' generator='OsmCli'>\n"
+		query = ET.Element('osmChange')
+		query.attrib["version"] = "0.6"
+		query.attrib["generator"] = "OsmCli"
+
 		if createXml is not None:
-			create += "<create>\n{}</create>\n".format(createXml)
+			xmldoc = ET.fromstring(createXml)
+			for nd in xmldoc: #Add changeset id info
+				nd.attrib["changeset"] = str(self.openChangeSet)
+			query.append(xmldoc)
+
 		if modifyXml is not None:
-			create += "<modify>\n{}</modify>\n".format(modifyXml)
+			xmldoc = ET.fromstring(modifyXml)
+			for nd in xmldoc: #Add changeset id info
+				nd.attrib["changeset"] = str(self.openChangeSet)
+			query.append(xmldoc)
+
 		if deleteXml is not None:
-			create += "<delete>\n{}</delete>\n".format(deleteXml)
-		create += "</osmChange>\n"
-		response = urlutil.Post(self.apiUrl+"/0.6/changeset/"+str(self.openChangeSet)+"/upload",create,self.userpass)
+			xmldoc = ET.fromstring(deleteXml)
+			for nd in xmldoc: #Add changeset id info
+				nd.attrib["changeset"] = str(self.openChangeSet)
+			query.append(xmldoc)
+
+		response = urlutil.Post(self.apiUrl+"/0.6/changeset/"+str(self.openChangeSet)+"/upload", 
+			ET.tostring(query, encoding="utf8"),self.userpass)
 		if urlutil.HeaderResponseCode(response[1]) != "HTTP/1.1 200 OK": 
 			raise RuntimeError ("Error uploading data: "+ response[0])
 		
 		#Process diff result
 		diffNodes, diffWays, diffRelations = {}, {}, {}
-		xmldoc = ET.fromstring(response[0])
-		for nd in xmldoc:
+		xmlroot = ET.fromstring(response[0])
+		for nd in xmlroot:
 			if nd.tag == "node":
 				diffNodes[int(nd.attrib["old_id"])] = map(int, (nd.attrib["new_id"], nd.attrib["new_version"]))
 			elif nd.tag == "way":
