@@ -1,4 +1,5 @@
 import urlutil
+import xml.etree.ElementTree as ET
 
 class OsmCli(object):
 	def __init__(self, apiUrl):	
@@ -60,5 +61,16 @@ class OsmCli(object):
 		if urlutil.HeaderResponseCode(response[1]) != "HTTP/1.1 200 OK": 
 			raise RuntimeError ("Error uploading data: "+ response[0])
 		
-		print response[0]
+		#Process diff result
+		diffNodes, diffWays, diffRelations = {}, {}, {}
+		xmldoc = ET.fromstring(response[0])
+		for nd in xmldoc:
+			if nd.tag == "node":
+				diffNodes[int(nd.attrib["old_id"])] = map(int, (nd.attrib["new_id"], nd.attrib["new_version"]))
+			elif nd.tag == "way":
+				diffWays[int(nd.attrib["old_id"])] = map(int, (nd.attrib["new_id"], nd.attrib["new_version"]))
+			elif nd.tag == "relation":
+				diffRelations[int(nd.attrib["old_id"])] = map(int, (nd.attrib["new_id"], nd.attrib["new_version"]))
+
+		return diffNodes, diffWays, diffRelations
 

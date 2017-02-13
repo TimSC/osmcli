@@ -16,7 +16,7 @@ if __name__=="__main__":
 	"    <nd ref='-289' />\n"+\
 	"    <nd ref='-2008' />\n"+\
 	"  </way>\n"
-	osmCli.Upload(createXml = createXml)
+	print osmCli.Upload(createXml = createXml)
 
 	osmCli.CloseChangeset()
 	
