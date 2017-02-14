@@ -22,7 +22,13 @@ if __name__=="__main__":
 	firstWayInfo = diffWays[-2010]
 
 	osmCli.CloseChangeset()
-	
+
+	#Do object retrieval
+	osmCli.GetObject("way", firstWayInfo[0])
+	osmCli.GetObject("node", firstNodeInfo[0], getParentWays = True)
+	osmCli.GetObject("node", firstNodeInfo[0], getParentRelations = True)
+
+	#Modify and delete
 	osmCli.CreateChangeset()
 
 	modifyXml = "<modify>\n"+\

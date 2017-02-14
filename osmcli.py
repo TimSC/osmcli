@@ -100,3 +100,22 @@ class OsmCli(object):
 
 		return diffNodes, diffWays, diffRelations
 
+	def GetObject(self, objType, objId, getFull = False, getParentWays = False, getParentRelations = False):
+		url = "{}/0.6/{}/{}".format(self.apiUrl, objType, objId)
+		if getFull and objType == "node":
+			raise RuntimeError ("Cannot get full data for a node")
+		if getParentWays and objType != "node":
+			raise RuntimeError ("Parent ways can only be retrieved for node")
+		if int(getFull) + int(getParentWays) + int(getParentRelations) > 1:
+			raise RuntimeError ("Only one option can be enabled")
+		if getFull:
+			url += "/full"
+		if getParentWays:
+			url += "/ways"
+		if getParentRelations:
+			url += "/relations"
+		response = urlutil.Get(url,self.userpass)
+		if urlutil.HeaderResponseCode(response[1]) != "HTTP/1.1 200 OK": 
+			raise RuntimeError ("Error uploading data: "+ response[0])
+		return response[0]
+
