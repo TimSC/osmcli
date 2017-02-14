@@ -52,12 +52,14 @@ class OsmCli(object):
 			raise RuntimeError("Changeset is not open")
 
 		query = ET.Element('osmChange')
+		query.text = "\n"
 		query.attrib["version"] = "0.6"
 		query.attrib["generator"] = "OsmCli"
 
 		if createXml is not None:
 			xmldoc = ET.fromstring(createXml)
 			xmldoc.tag = "create"
+			xmldoc.tail = "\n"
 			for nd in xmldoc: #Add changeset id info
 				nd.attrib["changeset"] = str(self.openChangeSet)
 			query.append(xmldoc)
@@ -65,6 +67,7 @@ class OsmCli(object):
 		if modifyXml is not None:
 			xmldoc = ET.fromstring(modifyXml)
 			xmldoc.tag = "modify"
+			xmldoc.tail = "\n"
 			for nd in xmldoc: #Add changeset id info
 				nd.attrib["changeset"] = str(self.openChangeSet)
 			query.append(xmldoc)
@@ -72,6 +75,7 @@ class OsmCli(object):
 		if deleteXml is not None:
 			xmldoc = ET.fromstring(deleteXml)
 			xmldoc.tag = "delete"
+			xmldoc.tail = "\n"
 			for nd in xmldoc: #Add changeset id info
 				nd.attrib["changeset"] = str(self.openChangeSet)
 			query.append(xmldoc)
