@@ -54,18 +54,21 @@ class OsmCli(object):
 
 		if createXml is not None:
 			xmldoc = ET.fromstring(createXml)
+			xmldoc.tag = "create"
 			for nd in xmldoc: #Add changeset id info
 				nd.attrib["changeset"] = str(self.openChangeSet)
 			query.append(xmldoc)
 
 		if modifyXml is not None:
 			xmldoc = ET.fromstring(modifyXml)
+			xmldoc.tag = "modify"
 			for nd in xmldoc: #Add changeset id info
 				nd.attrib["changeset"] = str(self.openChangeSet)
 			query.append(xmldoc)
 
 		if deleteXml is not None:
 			xmldoc = ET.fromstring(deleteXml)
+			xmldoc.tag = "delete"
 			for nd in xmldoc: #Add changeset id info
 				nd.attrib["changeset"] = str(self.openChangeSet)
 			query.append(xmldoc)
