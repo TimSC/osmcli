@@ -1,6 +1,9 @@
 import urlutil
 import xml.etree.ElementTree as ET
 
+class GoneError(RuntimeError):
+	pass
+
 class OsmCli(object):
 	def __init__(self, apiUrl):	
 		self.apiUrl = apiUrl
@@ -115,7 +118,10 @@ class OsmCli(object):
 		if getParentRelations:
 			url += "/relations"
 		response = urlutil.Get(url,self.userpass)
-		if urlutil.HeaderResponseCode(response[1]) != "HTTP/1.1 200 OK": 
-			raise RuntimeError ("Error uploading data: "+ response[0])
+		headerCode = urlutil.HeaderResponseCode(response[1])
+		if headerCode == "HTTP/1.1 410 Gone": 
+			raise GoneError()
+		if headerCode != "HTTP/1.1 200 OK": 
+			raise RuntimeError ("Error getting object data: "+ headerCode)
 		return response[0]
 
