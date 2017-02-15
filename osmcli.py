@@ -1,6 +1,6 @@
 import urlutil
 import xml.etree.ElementTree as ET
-
+from xml.sax.saxutils import escape
 class GoneError(RuntimeError):
 	pass
 
@@ -16,7 +16,7 @@ class OsmCli(object):
 	def GetCurrentChangeset(self):
 		return self.openChangeSet
 
-	def CreateChangeset(self, comment=None):
+	def CreateChangeset(self, comment=None, source=None):
 		if self.openChangeSet is not None:
 			raise RuntimeError("Only one open changeset is supported")
 
@@ -25,7 +25,9 @@ class OsmCli(object):
 			"<osm version='0.6' generator='OsmCli'>\n" +\
 			"  <changeset  id='0' open='false'>\n"
 		if comment is not None:
-			createChangeset + "    <tag k='comment' v='{}' />\n".format(comment)
+			createChangeset + "    <tag k='comment' v='{}' />\n".format(escape(comment))
+		if source is not None:
+			createChangeset + "    <tag k='source' v='{}' />\n".format(escape(source))
 		
 		createChangeset += "    <tag k='created_by' v='OsmCli' />\n" +\
 			"  </changeset>\n" +\
